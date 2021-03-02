@@ -6,7 +6,7 @@ This project is the interface of a To Do List.
 
 In the project directory, you can run:
 
-## `npm install`
+### `npm install`
 
 Install the dependencies of the project.
 
