@@ -1,4 +1,4 @@
-# Getting Started with Create React App
+# Getting Started
 
 This project is the interface of a To Do List.
 
