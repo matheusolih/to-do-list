@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import * as S from './styles';
 import { format } from 'date-fns';
+import { Redirect } from 'react-router-dom';
 
 import api from '../../services/api';
 
 import Header from '../../Components/Header';
-import Footer from '../../Components/Footer';
 import TypeIcons from '../../utils/typeIcons';
 
 import iconCalendar from '../../assets/calendar.png';
 import iconClock from '../../assets/clock.png';
 
 function Task({ match }) {
+  const [redirect, setRedirect] = useState(false);
   const [lateCount, setLateCount] = useState();
   const [type, setType] = useState();
   const [id, setId] = useState();
@@ -30,8 +31,8 @@ function Task({ match }) {
 
   async function LoadTaskDetails() {
     await api.get(`/task/${match.params.id}`).then((response) => {
-      console.log(response.data);
       setType(response.data.type);
+      setDone(response.data.done);
       setDescription(response.data.description);
       setTitle(response.data.title);
       setDate(format(new Date(response.data.when), 'yyyy-MM-dd'));
@@ -40,15 +41,46 @@ function Task({ match }) {
   }
 
   async function Save() {
-    await api
-      .post(`/task`, {
-        macaddress,
-        type,
-        title,
-        description,
-        when: `${date}T${hour}:00.000`,
-      })
-      .then(() => alert('Tarefa cadastrada com sucesso.'));
+    //Validação
+    if (!title) return alert('Você precisa informar um título');
+    else if (!description) return alert('Você precisa informar uma descrição');
+    else if (!type) return alert('Você precisa informar um tipo');
+    else if (!date) return alert('Você precisa informar uma data');
+    else if (!hour) return alert('Você precisa informar uma hora');
+
+    if (match.params.id) {
+      await api
+        .put(`/task/${match.params.id}`, {
+          macaddress,
+          done,
+          type,
+          title,
+          description,
+          when: `${date}T${hour}:00.000`,
+        })
+        .then(() => setRedirect(true))
+        .catch((error) => alert(`Erro: ${error.message}`));
+    } else {
+      await api
+        .post(`/task`, {
+          macaddress,
+          type,
+          title,
+          description,
+          when: `${date}T${hour}:00.000`,
+        })
+        .then(() => setRedirect(true))
+        .catch((error) => alert(`Erro: ${error.message}`));
+    }
+  }
+
+  async function Remove() {
+    if (window.confirm('Are you sure?')) {
+      await api.delete(`/task/${match.params.id}`).then(() => {
+        alert('Excluido com sucesso.');
+        setRedirect(true);
+      });
+    }
   }
 
   useEffect(() => {
@@ -58,6 +90,7 @@ function Task({ match }) {
 
   return (
     <S.Container>
+      {redirect && <Redirect to="/" />}
       <Header lateCount={lateCount} />
 
       <S.Form>
@@ -80,9 +113,10 @@ function Task({ match }) {
           <span>Título</span>
           <input
             type="text"
-            placeHolder="Título da tarefa"
+            placeholder="Título da tarefa"
             onChange={(e) => setTitle(e.target.value)}
             value={title}
+            required
           />
         </S.Input>
 
@@ -90,7 +124,7 @@ function Task({ match }) {
           <span>Descrição</span>
           <textarea
             rows={5}
-            placeHolder="Descrição da tarefa"
+            placeholder="Descrição da tarefa"
             onChange={(e) => setDescription(e.target.value)}
             value={description}
           />
@@ -122,10 +156,15 @@ function Task({ match }) {
               type="checkbox"
               onChange={() => setDone(!done)}
               value={done}
+              checked={done}
             />
             Concluído
           </div>
-          <button type="button">Excluir</button>
+          {match.params.id && (
+            <button type="button" onClick={Remove}>
+              Excluir
+            </button>
+          )}
         </S.Options>
 
         <S.Save>
@@ -134,8 +173,6 @@ function Task({ match }) {
           </button>
         </S.Save>
       </S.Form>
-
-      <Footer />
     </S.Container>
   );
 }

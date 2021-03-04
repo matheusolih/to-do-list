@@ -13,6 +13,7 @@ export const Container = styled.div`
 
   margin: 20px;
   transition: all 0.3s ease; /*mais suave na transição do opacity*/
+  opacity: ${(props) => (props.done ? 0.5 : 1)};
 
   &:hover {
     opacity: 0.5;

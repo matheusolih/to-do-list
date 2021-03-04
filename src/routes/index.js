@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import Footer from '../Components/Footer';
 
 import Home from '../views/Home';
 import Task from '../views/Task';
@@ -12,6 +13,7 @@ export default function Routes() {
         <Route path="/task" exact component={Task} />
         <Route path="/task/:id" exact component={Task} />
       </Switch>
+      <Footer />
     </BrowserRouter>
   );
 }
