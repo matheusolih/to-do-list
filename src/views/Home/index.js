@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import api from '../../services/api';
 
 import Header from '../../Components/Header';
-import Footer from '../../Components/Footer';
 import FilterCard from '../../Components/FilterCard';
 import TaskCard from '../../Components/TaskCard';
 
@@ -22,19 +21,12 @@ function Home() {
       });
   }
 
-  async function lateVerify() {
-    await api.get(`/task/filter/late/11:11:11:11:11:11`).then((response) => {
-      setLateCount(response.data.length);
-    });
-  }
-
   function clickNotification() {
     setFilterActived('late');
   }
 
   useEffect(() => {
     loadTasks();
-    lateVerify();
   }, [filterActived]);
 
   return (
